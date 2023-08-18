@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>achtungdiewoodstoc</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #mocz-canvas {
+            width: 50vw;
+            height: 100vh;
+        }
+
+        .mocz-holder {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .stopa {
+            position: fixed;
+            z-index: 999;
+            width: 40%;
+            height: 30%;
+            opacity: 0.7;
+        }
+        #stopA {
+            top: 10px;
+            left: 10px;
+        }
+        #stopB {
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mocz-holder">
+        <canvas id="mocz-canvas" style="background-color: #f0f0f0;"></canvas>
+        <canvas id="mocz-canvas2" style="background-color: #f0f0f0;"></canvas>
+    </div>
+    <div>
+    <img id="stopA" class="stopa"/>
+    <img id="stopB" class="stopa"/>
+    </div>
+    <script type="text/javascript" src="index.js"></script>
+</body>
+
+</html>

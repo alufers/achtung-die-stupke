@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        button {
+            font-size: 2em;
+        }
+    </style>
+    <title>stupki sdk</title>
+</head>
+<body>
+    <div class="status">Disconnected</div>
+    <div class="observations">?</div>
+    <div class="tracked_observations">?</div>
+    <div class="foot_photos"></div>
+    <div class="players"></div>
+    <div>
+        <button onclick="send({type: 'adjust_min_bb_height', delta: -10})">Min BB-</button>
+        <button onclick="send({type: 'adjust_min_bb_height', delta: 10})">Min BB+</button>
+    </div>
+    <div>
+        <button onclick="send({type: 'adjust_min_bb_width', delta: -10})">Min BB width -</button>
+        <button onclick="send({type: 'adjust_min_bb_width', delta: 10})">Min BB width +</button>
+    </div>
+    <div>
+        <button onclick="send({type: 'adjust_left_deadzone', delta: -10})">Left DZ-</button>
+        <button onclick="send({type: 'adjust_left_deadzone', delta: 10})">Left DZ+</button>
+    </div>
+    <div>
+        <button onclick="send({type: 'adjust_right_deadzone', delta: -10})">Right DZ-</button>
+        <button onclick="send({type: 'adjust_right_deadzone', delta: 10})">Right DZ+</button>
+    </div>
+    <script>
+        const $ = document.querySelector.bind(document);
+        
+        const wsUrl = 'ws://' + window.location.host + '/websocket';
+        let ws;
+        function connect() {
+            ws = new WebSocket(wsUrl);
+            ws.onopen = function() {
+                $('.status').innerHTML = 'Connected';
+            
+            }
+            ws.onclose = function() {
+                $('.status').innerHTML = 'Disconnected';
+                setTimeout(connect, 1000);
+            }
+            ws.onmessage = function(e) {
+                const msg = JSON.parse(e.data);
+                switch (msg.type) {
+                    case "observations":
+                        $('.observations').innerHTML = JSON.stringify(
+                            msg.observations.map(o => o.foot_diff.toFixed(2))
+                        )
+                        break;
+                    case "tracked_observations":
+                        $('.tracked_observations').innerHTML = JSON.stringify(
+                            msg.values.map(o => o.toFixed(2))
+                        )
+                        break;
+                    case "foot_photos":
+                        $('.foot_photos').innerHTML = msg.values.map(
+                            v => `<img src="${v}">`
+                        ).join('');
+                        break;
+                    case "players":
+                        console.log("PLAYERS")
+                        let primaryHtml = "";
+                        let secondaryHtml = "";
+                        if(msg.primary) {
+                            primaryHtml = `
+                                <div style="border: 1px solid black; margin: 5px;">
+                                    <div>Primary</div>
+                                    <div>Foot diff: ${msg.primary.foot_diff}</div>
+                                    <div>
+                                        <img src="${msg.primary.foot_image_data}">    
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        if(msg.secondary) {
+                            secondaryHtml = `
+                                <div style="border: 1px solid black; margin: 5px;">
+                                    <div>Secondary</div>
+                                    <div>Foot diff: ${msg.secondary.foot_diff}</div>
+                                    <div>
+                                        <img src="${msg.secondary.foot_image_data}">    
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        $('.players').innerHTML = primaryHtml + secondaryHtml;
+
+                        break;
+                }
+            }
+        }
+
+        function send(data) { 
+            ws.send(JSON.stringify(data));
+        }
+
+        connect();
+
+    </script>
+</body>
+</html>
